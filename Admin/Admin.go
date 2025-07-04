@@ -1,6 +1,8 @@
 package admin
 
 import (
+	bank "banking_app/Bank"
+	customer "banking_app/Customer"
 	utils "banking_app/Utils"
 )
 
@@ -12,6 +14,8 @@ type Admin struct {
 	FirstName string
 	LastName  string
 	IsActive  bool
+	banks     []*bank.Bank
+	customers []*customer.Customer
 }
 
 func Newadmin(FirstName, LastName string) *Admin {
@@ -28,6 +32,8 @@ func Newadmin(FirstName, LastName string) *Admin {
 		FirstName: FirstName,
 		LastName:  LastName,
 		IsActive:  true,
+		banks:     []*bank.Bank{},
+		customers: []*customer.Customer{},
 	}
 	adminMap[adminMapid] = ad
 	return ad
