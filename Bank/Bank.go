@@ -12,7 +12,7 @@ type Bank struct {
 }
 
 func NewBank(bank_id int, Fullname string) (*Bank, *Error.ValidationErr) {
-	if bank_id <= 9999 {
+	if bank_id < 0 {
 		return nil, Error.NewValidationErr("please provide a valid bank number")
 	}
 	if Fullname == "" {
@@ -29,5 +29,21 @@ func NewBank(bank_id int, Fullname string) (*Bank, *Error.ValidationErr) {
 		Fullname:     Fullname,
 		Abbreviation: Abbreviation,
 	}, nil
+
+}
+
+func (B *Bank) UpdateBankName(bank_new_name string) *Error.ValidationErr {
+
+	if bank_new_name == "" {
+		return Error.NewValidationErr("bank new fullname cannot be empty")
+	}
+	if len(bank_new_name) < 4 {
+		return Error.NewValidationErr("bank new fullname cannot be less than 4 letters")
+	}
+	B.Fullname = bank_new_name
+	firstTwo := bank_new_name[:2]
+	lastTwo := bank_new_name[len(bank_new_name)-2:]
+	B.Abbreviation = strings.ToLower(firstTwo + lastTwo)
+	return nil
 
 }

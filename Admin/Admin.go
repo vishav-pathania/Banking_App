@@ -1,6 +1,7 @@
 package admin
 
 import (
+	account "banking_app/Account"
 	bank "banking_app/Bank"
 	customer "banking_app/Customer"
 	utils "banking_app/Utils"
@@ -37,4 +38,118 @@ func Newadmin(FirstName, LastName string) *Admin {
 	}
 	adminMap[adminMapid] = ad
 	return ad
+}
+
+func (A *Admin) CreateNewBank(fullname string) *bank.Bank {
+	defer utils.HandlePanic()
+	newBankId := len(A.banks) + 1
+	newBank, err := bank.NewBank(newBankId, fullname)
+	if err != nil {
+		panic(err)
+	}
+	return newBank
+}
+
+func (A *Admin) UpdateBankName(bank_id int, bank_new_name string) {
+	defer utils.HandlePanic()
+	targetBank := A.GetBankById(bank_id)
+	err := targetBank.UpdateBankName(bank_new_name)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (A *Admin) CreateNewCustomer(First_Name, Last_Name string, Bank_id int) *customer.Customer {
+
+	defer utils.HandlePanic()
+	bankobject_to_addcustomer := A.GetBankById(Bank_id)
+	newCustomerId := len(A.customers) + 1
+	newAccount, err := account.NewAccount(1, bankobject_to_addcustomer)
+	if err != nil {
+		panic(err)
+	}
+	newCustomer, err := customer.NewCustomer(newCustomerId, First_Name, Last_Name, newAccount)
+	if err != nil {
+		panic(err)
+	}
+	return newCustomer
+}
+
+func (A *Admin) GetAllCustomers() []customer.Customer {
+	allCustomers := []customer.Customer{}
+	for _, CustomerVals := range A.customers {
+		allCustomers = append(allCustomers, *CustomerVals)
+	}
+	return allCustomers
+}
+
+func (A *Admin) GetBankById(id int) *bank.Bank {
+	defer utils.HandlePanic()
+	for _, bankVals := range A.banks {
+		if bankVals.Bank_id == id {
+			return bankVals
+		}
+	}
+	panic("invalid bank id")
+}
+
+func (A *Admin) GetAllBanks() []bank.Bank {
+	allbanks := []bank.Bank{}
+	for _, bankVals := range A.banks {
+		allbanks = append(allbanks, *bankVals)
+	}
+	return allbanks
+}
+
+func (A *Admin) GetCustomerById(customer_id int) *customer.Customer {
+	defer utils.HandlePanic()
+	for _, customerVals := range A.customers {
+		if customerVals.Customer_id == customer_id {
+			return customerVals
+		}
+	}
+	panic("invalid customer id")
+}
+
+func (A *Admin) UpdateCustomer(customer_id int, param string, value interface{}) {
+	defer utils.HandlePanic()
+	targetCustomer := A.GetCustomerById(customer_id)
+	err := targetCustomer.UpdateCustomer(param, value)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (A *Admin) deleteBank(bank_id int) {
+	defer utils.HandlePanic()
+	targetBank := A.GetBankById(bank_id)
+	for _, CustomerVals := range A.customers {
+		for _, AccountVals := range CustomerVals.Accounts {
+			if AccountVals.Bank == targetBank {
+				panic("bank still have accounts associated with it")
+			}
+		}
+	}
+	newBanks := []*bank.Bank{}
+	for _, banksVal := range A.banks {
+		if banksVal != targetBank {
+			newBanks = append(newBanks, banksVal)
+		}
+	}
+	A.banks = newBanks
+}
+
+func (A *Admin) deleteCustomer(customer_id int) {
+	defer utils.HandlePanic()
+	targetCustomer := A.GetCustomerById(customer_id)
+	if len(targetCustomer.Accounts) > 0 {
+		panic("customer still have accounts assosiated with him")
+	}
+	newCustomers := []*customer.Customer{}
+	for _, CustomerVals := range A.customers {
+		if CustomerVals != targetCustomer {
+			newCustomers = append(newCustomers, CustomerVals)
+		}
+	}
+	A.customers = newCustomers
 }

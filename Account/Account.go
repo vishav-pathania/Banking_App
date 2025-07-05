@@ -6,13 +6,13 @@ import (
 )
 
 type Account struct {
-	Account_No float64
-	bank.Bank
+	Account_No int
+	*bank.Bank
 	Balance float64
 }
 
-func NewAccount(Account_No float64, bankobject bank.Bank) (*Account, *Error.ValidationErr) {
-	if Account_No <= 999999999 {
+func NewAccount(Account_No int, bankobject *bank.Bank) (*Account, *Error.ValidationErr) {
+	if Account_No <= 0 {
 		return nil, Error.NewValidationErr("please provide a valid account number")
 	}
 	return &Account{
