@@ -2,6 +2,7 @@ package customer
 
 import (
 	account "banking_app/Account"
+	bank "banking_app/Bank"
 	"banking_app/Error"
 	utils "banking_app/Utils"
 )
@@ -11,11 +12,11 @@ type Customer struct {
 	First_Name    string
 	Last_Name     string
 	Accounts      []*account.Account
-	Total_Balance int
+	Total_Balance float64
 }
 
 func NewCustomer(customer_id int, First_Name, Last_Name string, bankaccount *account.Account) (*Customer, *Error.ValidationErr) {
-	if customer_id <= 999999999 {
+	if customer_id <= 0 {
 		return nil, Error.NewValidationErr("please provide a valid customer_id number")
 	}
 	if First_Name == "" {
@@ -80,4 +81,23 @@ func (C *Customer) UpdateLastName(value interface{}) *Error.ValidationErr {
 	}
 	C.First_Name = conval
 	return nil
+}
+
+func (C *Customer) AddNewAccount(targetBank *bank.Bank) (*account.Account, *Error.ValidationErr) {
+	newAccountId := len(C.Accounts) + 1
+	newCustomerAccount, err := account.NewAccount(newAccountId, targetBank)
+	if err != nil {
+		return nil, err
+	}
+	C.Accounts = append(C.Accounts, newCustomerAccount)
+	C.UpdateTotalBalance()
+	return newCustomerAccount, nil
+}
+
+func (C *Customer) UpdateTotalBalance() {
+	totalSum := 0.0
+	for _, CusomterAccountVal := range C.Accounts {
+		totalSum += CusomterAccountVal.Balance
+	}
+	C.Total_Balance = totalSum
 }

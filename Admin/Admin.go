@@ -72,6 +72,7 @@ func (A *Admin) CreateNewCustomer(First_Name, Last_Name string, Bank_id int) *cu
 	if err != nil {
 		panic(err)
 	}
+	A.customers = append(A.customers, newCustomer)
 	return newCustomer
 }
 
@@ -152,4 +153,14 @@ func (A *Admin) deleteCustomer(customer_id int) {
 		}
 	}
 	A.customers = newCustomers
+}
+
+func (A *Admin) AddAccountToCustomer(customer_id int, bank_id int) {
+	defer utils.HandlePanic()
+	targetCustomer := A.GetCustomerById(customer_id)
+	targetBank := A.GetBankById(bank_id)
+	_, err := targetCustomer.AddNewAccount(targetBank)
+	if err != nil {
+		panic(err)
+	}
 }
