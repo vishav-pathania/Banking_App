@@ -125,3 +125,16 @@ func (C *Customer) DeleteAccountById(account_id int) *Error.ValidationErr {
 	C.Accounts = newCustomerAccounts
 	return nil
 }
+
+// Two different error type -------
+func (C *Customer) DepositMoney(amount float64, account_id int) *Error.TransactionErr {
+	targetAccount, err := C.GetAccountById(account_id)
+	if err != nil {
+		return (*Error.TransactionErr)(err)
+	}
+	nerr := targetAccount.DepositMoney(amount, C.Customer_id, targetAccount.Account_No)
+	if nerr != nil {
+		return nerr
+	}
+	return nil
+}

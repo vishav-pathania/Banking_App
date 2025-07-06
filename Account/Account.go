@@ -4,6 +4,7 @@ import (
 	bank "banking_app/Bank"
 	"banking_app/Error"
 	transactions "banking_app/Transactions"
+	"strconv"
 )
 
 type Account struct {
@@ -22,4 +23,14 @@ func NewAccount(Account_No int, bankobject *bank.Bank) (*Account, *Error.Validat
 		Bank:       bankobject,
 		Balance:    1000,
 	}, nil
+}
+
+func (A *Account) DepositMoney(amount float64, FromCustomer_id int, ToCustomer_AccountNo int) *Error.TransactionErr {
+	newTransaction, err := transactions.NewTransaction(amount, FromCustomer_id, FromCustomer_id, "Self-Deposit", strconv.Itoa(ToCustomer_AccountNo))
+	if err != nil {
+		return err
+	}
+	A.Transactions = append(A.Transactions, newTransaction)
+	A.Balance += amount
+	return nil
 }
