@@ -36,6 +36,9 @@ func (A *Account) DepositMoney(amount float64, FromCustomer_id int, ToCustomer_A
 }
 
 func (A *Account) WithDrawMoney(amount float64, FromCustomer_id int, FromCustomer_AccountNo int) *Error.TransactionErr {
+	if A.Balance-amount < 1000 {
+		return Error.NewTransactionErr("must maintain a minimum balance of 1000/-")
+	}
 	newTransaction, err := transactions.NewTransaction(amount, FromCustomer_id, FromCustomer_id, strconv.Itoa(FromCustomer_AccountNo), "WithDraw")
 	if err != nil {
 		return err

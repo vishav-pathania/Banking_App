@@ -4,7 +4,9 @@ import (
 	account "banking_app/Account"
 	bank "banking_app/Bank"
 	"banking_app/Error"
+	transactions "banking_app/Transactions"
 	utils "banking_app/Utils"
+	"strconv"
 )
 
 type Customer struct {
@@ -153,4 +155,44 @@ func (C *Customer) WithDrawMoneyByAccount_Id(amount float64, account_id int) *Er
 	}
 	C.UpdateTotalBalance()
 	return nil
+}
+
+func (C *Customer) GetTotalBalance() float64 {
+	TotalBalance := 0.0
+	for _, AccountsVal := range C.Accounts {
+		TotalBalance += AccountsVal.Balance
+	}
+	return TotalBalance
+}
+
+func (C *Customer) GetAccount_BalanceBy_Id(account_id int) float64 {
+	utils.HandlePanic()
+	targetAccount, err := C.GetAccountById(account_id)
+	if err != nil {
+		panic(err)
+	}
+	return targetAccount.Balance
+}
+
+func (C *Customer) TransferMoneyInternally(fromaccount_id, to_account_id int, amount float64) {
+	utils.HandlePanic()
+	fromAccount, err := C.GetAccountById(fromaccount_id)
+	if err != nil {
+		panic(err)
+	}
+	if fromAccount.Balance-amount < 1000 {
+		panic("not enough balance to transfer and maintain minimum balance")
+	}
+	toAccount, err := C.GetAccountById(to_account_id)
+	if err != nil {
+		panic(err)
+	}
+	newTransaction, terr := transactions.NewTransaction(amount, C.Customer_id, C.Customer_id, strconv.Itoa(fromAccount.Account_No), strconv.Itoa(toAccount.Account_No))
+	if terr != nil {
+		panic(terr)
+	}
+	fromAccount.Transactions = append(fromAccount.Transactions, newTransaction)
+	toAccount.Transactions = append(toAccount.Transactions, newTransaction)
+	fromAccount.Balance += amount
+	toAccount.Balance -= amount
 }

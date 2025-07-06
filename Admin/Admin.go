@@ -4,7 +4,9 @@ import (
 	account "banking_app/Account"
 	bank "banking_app/Bank"
 	customer "banking_app/Customer"
+	transactions "banking_app/Transactions"
 	utils "banking_app/Utils"
+	"strconv"
 )
 
 var adminMap = make(map[int]*Admin)
@@ -190,4 +192,48 @@ func (A *Admin) WithDrawMoney(amount float64, customer_id, account_id int) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (A *Admin) GetTotalBalanceBy_Customer_Id(customer_id int) float64 {
+	targetCustomer := A.GetCustomerById(customer_id)
+	TotalBalance := targetCustomer.GetTotalBalance()
+	return TotalBalance
+}
+
+func (A *Admin) GetAccount_BalanceBy_Id(customer_id, account_id int) float64 {
+	targetCustomer := A.GetCustomerById(customer_id)
+	accountBalance := targetCustomer.GetAccount_BalanceBy_Id(account_id)
+	return accountBalance
+}
+
+func (A *Admin) Transfer_MoneyInternally_ByCustomerId(amount float64, customer_id, fromAccount_id, toAccount_id int) {
+	targerCustomer := A.GetCustomerById(customer_id)
+	targerCustomer.TransferMoneyInternally(fromAccount_id, toAccount_id, amount)
+}
+
+func (A *Admin) TransferMoney_To_External(amount float64, fromCustomer_id, ToCustomer_id, fromAccount_id, toAccount_id int) {
+	defer utils.HandlePanic()
+	senderCustomer := A.GetCustomerById(fromCustomer_id)
+	receiverCustomer := A.GetCustomerById(ToCustomer_id)
+	senderAccount, Aserr := senderCustomer.GetAccountById(fromAccount_id)
+	if Aserr != nil {
+		panic(Aserr)
+	}
+	receiverAccount, Arerr := receiverCustomer.GetAccountById(toAccount_id)
+	if Arerr != nil {
+		panic(Arerr)
+	}
+	if senderAccount.Balance-amount < 1000 {
+		panic("not enough balance to transfer and maintain minimum balance")
+	}
+	newTransaction, terr := transactions.NewTransaction(amount, senderCustomer.Customer_id, receiverCustomer.Customer_id, strconv.Itoa(senderAccount.Account_No), strconv.Itoa(receiverAccount.Account_No))
+	if terr != nil {
+		panic(terr)
+	}
+	senderAccount.Transactions = append(senderAccount.Transactions, newTransaction)
+	receiverAccount.Transactions = append(receiverAccount.Transactions, newTransaction)
+	senderAccount.Balance -= amount
+	receiverAccount.Balance += amount
+	senderCustomer.UpdateTotalBalance()
+	receiverCustomer.UpdateTotalBalance()
 }
