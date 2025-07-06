@@ -34,3 +34,13 @@ func (A *Account) DepositMoney(amount float64, FromCustomer_id int, ToCustomer_A
 	A.Balance += amount
 	return nil
 }
+
+func (A *Account) WithDrawMoney(amount float64, FromCustomer_id int, FromCustomer_AccountNo int) *Error.TransactionErr {
+	newTransaction, err := transactions.NewTransaction(amount, FromCustomer_id, FromCustomer_id, strconv.Itoa(FromCustomer_AccountNo), "WithDraw")
+	if err != nil {
+		return err
+	}
+	A.Transactions = append(A.Transactions, newTransaction)
+	A.Balance -= amount
+	return nil
+}

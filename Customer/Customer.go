@@ -123,6 +123,7 @@ func (C *Customer) DeleteAccountById(account_id int) *Error.ValidationErr {
 		}
 	}
 	C.Accounts = newCustomerAccounts
+	C.UpdateTotalBalance()
 	return nil
 }
 
@@ -136,5 +137,20 @@ func (C *Customer) DepositMoney(amount float64, account_id int) *Error.Transacti
 	if nerr != nil {
 		return nerr
 	}
+	C.UpdateTotalBalance()
+	return nil
+}
+
+// same doubt as above------
+func (C *Customer) WithDrawMoneyByAccount_Id(amount float64, account_id int) *Error.TransactionErr {
+	targetAccount, err := C.GetAccountById(account_id)
+	if err != nil {
+		return (*Error.TransactionErr)(err)
+	}
+	nerr := targetAccount.WithDrawMoney(amount, C.Customer_id, targetAccount.Account_No)
+	if nerr != nil {
+		return nerr
+	}
+	C.UpdateTotalBalance()
 	return nil
 }

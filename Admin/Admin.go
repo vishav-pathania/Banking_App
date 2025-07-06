@@ -182,3 +182,12 @@ func (A *Admin) DepositMoney(amount float64, customer_id, account_id int) {
 		panic(err)
 	}
 }
+
+func (A *Admin) WithDrawMoney(amount float64, customer_id, account_id int) {
+	defer utils.HandlePanic()
+	targetCustomer := A.GetCustomerById(customer_id)
+	err := targetCustomer.WithDrawMoneyByAccount_Id(amount, account_id)
+	if err != nil {
+		panic(err)
+	}
+}
