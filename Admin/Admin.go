@@ -237,3 +237,21 @@ func (A *Admin) TransferMoney_To_External(amount float64, fromCustomer_id, ToCus
 	senderCustomer.UpdateTotalBalance()
 	receiverCustomer.UpdateTotalBalance()
 }
+
+func (A *Admin) PassBook(customer_id, account_id int, pageNo int) []transactions.Transaction {
+	defer utils.HandlePanic()
+	targetCustomer := A.GetCustomerById(customer_id)
+	targetAccount, err := targetCustomer.GetAccountById(account_id)
+	if err != nil {
+		panic(err)
+	}
+	startIndex := pageNo * 5
+	if startIndex >= len(targetAccount.Transactions) {
+		panic("provide a smaller page number transactions doesn't exist")
+	}
+	copyOfTransactions := []transactions.Transaction{}
+	for i := startIndex; i < 6; i++ {
+		copyOfTransactions = append(copyOfTransactions, *targetAccount.Transactions[i])
+	}
+	return copyOfTransactions
+}
