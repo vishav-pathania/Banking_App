@@ -46,4 +46,14 @@ func main() {
 	fmt.Println(Someone)
 	Admin.TransferMoney_To_External(1000, 1, 2, 2, 1)
 	fmt.Println(Someone)
+	Admin.DeleteCustomerAccountById(1, 2)
+	for _, accountvals := range Aniket.Accounts {
+		fmt.Println("Accounts-->", *accountvals)
+	}
+	Admin.DeleteBank(2)
+	allbanks := Admin.GetAllBanks()
+	for _, v := range allbanks {
+		fmt.Println("banks-->", v)
+	}
+	Admin.DeleteCustomer(2)
 }

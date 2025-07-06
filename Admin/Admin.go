@@ -124,7 +124,7 @@ func (A *Admin) UpdateCustomer(customer_id int, param string, value interface{})
 	}
 }
 
-func (A *Admin) deleteBank(bank_id int) {
+func (A *Admin) DeleteBank(bank_id int) {
 	defer utils.HandlePanic()
 	targetBank := A.GetBankById(bank_id)
 	for _, CustomerVals := range A.customers {
@@ -143,7 +143,7 @@ func (A *Admin) deleteBank(bank_id int) {
 	A.banks = newBanks
 }
 
-func (A *Admin) deleteCustomer(customer_id int) {
+func (A *Admin) DeleteCustomer(customer_id int) {
 	defer utils.HandlePanic()
 	targetCustomer := A.GetCustomerById(customer_id)
 	if len(targetCustomer.Accounts) > 0 {
