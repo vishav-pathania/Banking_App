@@ -164,3 +164,12 @@ func (A *Admin) AddAccountToCustomer(customer_id int, bank_id int) {
 		panic(err)
 	}
 }
+
+func (A *Admin) DeleteCustomerAccountById(customer_id, account_id int) {
+	defer utils.HandlePanic()
+	targetCustomer := A.GetCustomerById(customer_id)
+	err := targetCustomer.DeleteAccountById(account_id)
+	if err != nil {
+		panic(err)
+	}
+}

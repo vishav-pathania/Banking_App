@@ -18,3 +18,18 @@ func NewValidationErr(specificMessage string) *ValidationErr {
 		specificMessage: specificMessage,
 	}
 }
+
+type TransactionErr struct {
+	err             error
+	statusCode      int
+	specificMessage string
+}
+
+func NewTransactionErr(specificMessage string) *TransactionErr {
+	terr := errors.New("transaction error")
+	return &TransactionErr{
+		err:             terr,
+		statusCode:      422,
+		specificMessage: specificMessage,
+	}
+}

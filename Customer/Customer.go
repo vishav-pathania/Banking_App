@@ -101,3 +101,27 @@ func (C *Customer) UpdateTotalBalance() {
 	}
 	C.Total_Balance = totalSum
 }
+
+func (C *Customer) GetAccountById(account_id int) (*account.Account, *Error.ValidationErr) {
+	for _, accountVals := range C.Accounts {
+		if accountVals.Account_No == account_id {
+			return accountVals, nil
+		}
+	}
+	return nil, Error.NewValidationErr("please provide valid account id")
+}
+
+func (C *Customer) DeleteAccountById(account_id int) *Error.ValidationErr {
+	targetAccount, err := C.GetAccountById(account_id)
+	if err != nil {
+		return err
+	}
+	newCustomerAccounts := []*account.Account{}
+	for _, AccountVals := range C.Accounts {
+		if AccountVals != targetAccount {
+			newCustomerAccounts = append(newCustomerAccounts, AccountVals)
+		}
+	}
+	C.Accounts = newCustomerAccounts
+	return nil
+}
