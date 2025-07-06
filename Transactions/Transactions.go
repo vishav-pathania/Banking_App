@@ -22,7 +22,7 @@ func NewTransaction(amount float64, FromCustomer_id, ToCustomer_id int, FromCust
 		return nil, Error.NewTransactionErr("from_account and to_account cannot be similar")
 	}
 	return &Transaction{
-		Transaction_Id:          utils.GenerateTransactionID(),
+		Transaction_Id:          utils.GenerateUniqueID(),
 		Amount:                  amount,
 		FromCustomer_id:         FromCustomer_id,
 		ToCustomer_id:           ToCustomer_id,

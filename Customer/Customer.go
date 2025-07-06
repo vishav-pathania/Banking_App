@@ -27,6 +27,11 @@ func NewCustomer(customer_id int, First_Name, Last_Name string, bankaccount *acc
 	if Last_Name == "" {
 		return nil, Error.NewValidationErr("last name of customer cannot be empty")
 	}
+	newTransaction, terr := transactions.NewTransaction(1000, customer_id, customer_id, strconv.Itoa(bankaccount.Account_No), "New-Account-Deposite")
+	if terr != nil {
+		return nil, (*Error.ValidationErr)(terr)
+	}
+	bankaccount.Transactions = append(bankaccount.Transactions, newTransaction)
 	return &Customer{
 		Customer_id:   customer_id,
 		First_Name:    First_Name,
@@ -92,6 +97,11 @@ func (C *Customer) AddNewAccount(targetBank *bank.Bank) (*account.Account, *Erro
 		return nil, err
 	}
 	C.Accounts = append(C.Accounts, newCustomerAccount)
+	newTransaction, terr := transactions.NewTransaction(1000, C.Customer_id, C.Customer_id, strconv.Itoa(newCustomerAccount.Account_No), "New-Account-Deposite")
+	if terr != nil {
+		return nil, (*Error.ValidationErr)(terr)
+	}
+	newCustomerAccount.Transactions = append(newCustomerAccount.Transactions, newTransaction)
 	C.UpdateTotalBalance()
 	return newCustomerAccount, nil
 }
@@ -193,6 +203,6 @@ func (C *Customer) TransferMoneyInternally(fromaccount_id, to_account_id int, am
 	}
 	fromAccount.Transactions = append(fromAccount.Transactions, newTransaction)
 	toAccount.Transactions = append(toAccount.Transactions, newTransaction)
-	fromAccount.Balance += amount
-	toAccount.Balance -= amount
+	fromAccount.Balance -= amount
+	toAccount.Balance += amount
 }

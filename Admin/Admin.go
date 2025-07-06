@@ -49,6 +49,7 @@ func (A *Admin) CreateNewBank(fullname string) *bank.Bank {
 	if err != nil {
 		panic(err)
 	}
+	A.banks = append(A.banks, newBank)
 	return newBank
 }
 
@@ -245,12 +246,17 @@ func (A *Admin) PassBook(customer_id, account_id int, pageNo int) []transactions
 	if err != nil {
 		panic(err)
 	}
-	startIndex := pageNo * 5
+	pageSize := 5
+	startIndex := pageNo * pageSize
+	endIndex := startIndex + pageSize
+	if endIndex > len(targetAccount.Transactions) {
+		endIndex = len(targetAccount.Transactions)
+	}
 	if startIndex >= len(targetAccount.Transactions) {
 		panic("provide a smaller page number transactions doesn't exist")
 	}
 	copyOfTransactions := []transactions.Transaction{}
-	for i := startIndex; i < 6; i++ {
+	for i := startIndex; i < endIndex; i++ {
 		copyOfTransactions = append(copyOfTransactions, *targetAccount.Transactions[i])
 	}
 	return copyOfTransactions
