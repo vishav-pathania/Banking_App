@@ -17,8 +17,8 @@ func HandlePanic() {
 	}
 }
 
-func GenerateUniqueID() int64 {
+func GenerateUniqueID() int {
 	src := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(src)
-	return r.Int63n(9000000000) + 1000000000 // 10-digit number
+	return r.Intn(90000) + 10000
 }

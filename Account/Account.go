@@ -1,27 +1,26 @@
 package account
 
 import (
-	bank "banking_app/Bank"
 	"banking_app/Error"
 	transactions "banking_app/Transactions"
 	"strconv"
 )
 
 type Account struct {
-	Account_No int
-	*bank.Bank
+	Account_No   int
 	Balance      float64
+	Bank_id      int
 	Transactions []*transactions.Transaction
+	IsActive     bool
 }
 
-func NewAccount(Account_No int, bankobject *bank.Bank) (*Account, *Error.ValidationErr) {
-	if Account_No <= 0 {
-		return nil, Error.NewValidationErr("please provide a valid account number")
-	}
+func NewAccount(Account_No int, Bank_id int) (*Account, *Error.ValidationErr) {
+
 	return &Account{
 		Account_No: Account_No,
-		Bank:       bankobject,
 		Balance:    1000,
+		Bank_id:    Bank_id,
+		IsActive:   true,
 	}, nil
 }
 

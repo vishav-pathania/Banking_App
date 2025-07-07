@@ -1,59 +1,45 @@
 package main
 
 import (
-	admin "banking_app/Admin"
+	customer "banking_app/Customer"
 	"fmt"
 )
 
 func main() {
-	Admin := admin.Newadmin("Vishav", "Pathaia")
-	fmt.Println(Admin)
-	axisBank := Admin.CreateNewBank("Axis_Bank")
-	fmt.Println(axisBank)
-	Aniket := Admin.CreateNewCustomer("Aniket", "Pardeshi", 1)
+	newAdmin := customer.Newadmin("Vishav", "Pathania")
+	fmt.Println(newAdmin)
+	AxisBank := newAdmin.CreateNewBank("Axis_Bank")
+	ICICIBank := newAdmin.CreateNewBank("ICICI_Bank")
+	fmt.Println(AxisBank)
+	fmt.Println(ICICIBank)
+	Aniket := newAdmin.CreateNewCustomer("Aniket", "Pardeshi", AxisBank.Bank_id)
 	fmt.Println(Aniket)
-	iciciBank := Admin.CreateNewBank("ICICI_Bank")
-	fmt.Println(iciciBank)
-
-	AniketAccount2, aerr := Aniket.AddNewAccount(iciciBank)
-	if aerr != nil {
-		fmt.Println(aerr)
-	}
+	AniketAccount2 := Aniket.AddNewAccount(ICICIBank.Bank_id)
 	fmt.Println(AniketAccount2)
-	fmt.Println(Aniket.Accounts[1])
-	fmt.Println("-------------------------------------")
-	transactions := Admin.PassBook(Aniket.Customer_id, 1, 0)
-	for _, val := range transactions {
-		fmt.Println(val)
+	fmt.Println(Aniket)
+	Aniket.DeleteAccountById(AniketAccount2.Account_No)
+	fmt.Println(Aniket)
+	Aniket.DepositMoney(5000, AniketAccount2.Account_No)
+	fmt.Println(Aniket)
+	Aniket.WithDrawMoney(500, AniketAccount2.Account_No)
+	fmt.Println(Aniket)
+	fmt.Println("-----------------------")
+	fmt.Println(AniketAccount2)
+	Aniket.TransferMoneyInternally(AniketAccount2.Account_No, Aniket.Accounts[0].Account_No, 600)
+	fmt.Println(AniketAccount2)
+	fmt.Println(Aniket.Accounts[0])
+	SomeOneNew := newAdmin.CreateNewCustomer("SomeOne", "New", ICICIBank.Bank_id)
+	fmt.Println(SomeOneNew)
+	Aniket.TransferMoney_To_External(600, Aniket.Customer_id, SomeOneNew.Customer_id, AniketAccount2.Account_No, SomeOneNew.Accounts[0].Account_No)
+	fmt.Println(Aniket)
+	fmt.Println(SomeOneNew)
+	// newAdmin.DeleteBank(ICICIBank.Bank_id)
+	SomeOneNew.DeleteAccountById(SomeOneNew.Accounts[0].Account_No)
+	newAdmin.DeleteBank(ICICIBank.Bank_id)
+	fmt.Println(ICICIBank) //bank status false now
+	resultpage := newAdmin.GetPassBook_ById(Aniket.Customer_id, AniketAccount2.Account_No, 0)
+	fmt.Println("passbook or transactions below--------------------------------------")
+	for _, vals := range resultpage {
+		fmt.Println(vals)
 	}
-	fmt.Println("-------------------------------------")
-	err := Aniket.DepositMoney(5000, 1)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("Checking balance---->", Aniket.Accounts[0]) //id 1
-	fmt.Println("Checking balance---->", Aniket.Accounts[1]) //id 2
-	Aniket.TransferMoneyInternally(1, 2, 1000)
-	fmt.Println("Checking balance---->", Aniket.Accounts[1])
-	fmt.Println("____________________________")
-	account1, _ := Aniket.GetAccountById(1)
-	account2, _ := Aniket.GetAccountById(2)
-	fmt.Println(account1.Bank.Fullname)
-	fmt.Println(account2.Bank.Fullname)
-
-	fmt.Println("<--------------------------------------------->")
-	Someone := Admin.CreateNewCustomer("Some", "One", 1)
-	fmt.Println(Someone)
-	Admin.TransferMoney_To_External(1000, 1, 2, 2, 1)
-	fmt.Println(Someone)
-	Admin.DeleteCustomerAccountById(1, 2)
-	for _, accountvals := range Aniket.Accounts {
-		fmt.Println("Accounts-->", *accountvals)
-	}
-	Admin.DeleteBank(2)
-	allbanks := Admin.GetAllBanks()
-	for _, v := range allbanks {
-		fmt.Println("banks-->", v)
-	}
-	Admin.DeleteCustomer(2)
 }

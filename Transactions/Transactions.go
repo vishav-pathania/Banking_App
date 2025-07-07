@@ -6,7 +6,7 @@ import (
 )
 
 type Transaction struct {
-	Transaction_Id          int64
+	Transaction_Id          int
 	Amount                  float64
 	FromCustomer_id         int
 	ToCustomer_id           int
