@@ -3,6 +3,7 @@ package bank
 import (
 	account "banking_app/Account"
 	"banking_app/Error"
+	ledger "banking_app/Ledger"
 	"strings"
 )
 
@@ -12,6 +13,7 @@ type Bank struct {
 	Abbreviation string
 	IsActive     bool
 	Accounts     []*account.Account
+	Ledger       []*ledger.Ledger
 }
 
 func NewBank(bank_id int, Fullname string) (*Bank, *Error.ValidationErr) {
@@ -31,6 +33,7 @@ func NewBank(bank_id int, Fullname string) (*Bank, *Error.ValidationErr) {
 		Bank_id:      bank_id,
 		Fullname:     Fullname,
 		Abbreviation: Abbreviation,
+		Ledger:       []*ledger.Ledger{},
 	}, nil
 
 }

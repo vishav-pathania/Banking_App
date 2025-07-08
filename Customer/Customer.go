@@ -4,6 +4,7 @@ import (
 	account "banking_app/Account"
 	bank "banking_app/Bank"
 	"banking_app/Error"
+	ledger "banking_app/Ledger"
 	transactions "banking_app/Transactions"
 	utils "banking_app/Utils"
 	"strconv"
@@ -266,8 +267,18 @@ func (C *Customer) TransferMoney_To_External(amount float64, fromCustomer_id, To
 	receiverAccount.Transactions = append(receiverAccount.Transactions, newTransaction)
 	senderAccount.Balance -= amount
 	receiverAccount.Balance += amount
+
 	senderCustomer.UpdateTotalBalance()
 	receiverCustomer.UpdateTotalBalance()
+	/////////////////////////////////// adding ledger below
+	MoneySendingBank := C.GetBankById(senderAccount.Bank_id)
+	MoneyReceivingBank := C.GetBankById(receiverAccount.Bank_id)
+	newEntryInLedger, err := ledger.Newledger(amount, MoneySendingBank.Bank_id, MoneyReceivingBank.Bank_id, MoneySendingBank.Fullname, MoneyReceivingBank.Fullname)
+	if err != nil && MoneySendingBank.Bank_id != MoneyReceivingBank.Bank_id {
+		panic(err)
+	}
+	MoneySendingBank.Ledger = append(MoneySendingBank.Ledger, newEntryInLedger)
+	MoneyReceivingBank.Ledger = append(MoneyReceivingBank.Ledger, newEntryInLedger)
 }
 
 func (C *Customer) GetPassBook_ById(customer_id, account_id int, pageNo int) []transactions.Transaction {
@@ -482,4 +493,52 @@ func (C *Customer) TransferMoneyInternally(fromaccount_id, to_account_id int, am
 	toAccount.Transactions = append(toAccount.Transactions, newTransaction)
 	fromAccount.Balance -= amount
 	toAccount.Balance += amount
+}
+
+func (C *Customer) GetLedgerByBank_Id(bank_id, pageNo int) []ledger.Ledger {
+	defer utils.HandlePanic()
+	if !C.isAdmin {
+		panic("only admins can get specific bank ledger by id")
+	}
+	if !C.isActive {
+		panic("only active admins can get specific bank ledger by id")
+	}
+	targetBank := C.GetBankById(bank_id)
+	pageSize := 5
+	startIndex := pageNo * pageSize
+	endIndex := startIndex + pageSize
+	if endIndex > len(targetBank.Ledger) {
+		endIndex = len(targetBank.Ledger)
+	}
+	if startIndex >= len(targetBank.Ledger) {
+		panic("provide a smaller page number ledger entry doesn't exist")
+	}
+	copyOfBankLedger := []ledger.Ledger{}
+	for i := startIndex; i < endIndex; i++ {
+		copyOfBankLedger = append(copyOfBankLedger, *targetBank.Ledger[i])
+	}
+	return copyOfBankLedger
+}
+
+func (C *Customer) SettleMent(fromBank_id, toBank_id int) float64 {
+	defer utils.HandlePanic()
+	if !C.isAdmin {
+		panic("only admin can get bank settlements")
+	}
+	if !C.isActive {
+		panic("only active admins can get bank settlements")
+	}
+	fromBank := C.GetBankById(fromBank_id)
+	_ = C.GetBankById(toBank_id) //just for validation
+	sendingAmount := 0.0
+	receivingAmount := 0.0
+	for _, LedgerVals := range fromBank.Ledger {
+		if LedgerVals.From_bank_id == fromBank_id {
+			sendingAmount += LedgerVals.Amount
+		}
+		if LedgerVals.To_bank_id == fromBank_id {
+			receivingAmount += LedgerVals.Amount
+		}
+	}
+	return sendingAmount - receivingAmount
 }
